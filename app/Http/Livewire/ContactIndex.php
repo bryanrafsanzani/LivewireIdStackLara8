@@ -13,6 +13,15 @@ class ContactIndex extends Component
     public $data;
     public $statusUpdate = false;
     public $paginate = 5;
+    public $search;
+
+    protected $updatesQueryString = ['search'];
+
+    public function mount() //like constructor class
+    {
+        $this->search = request()->query('search', $this->search); //memasukan query di url kedalam livewire
+
+    }
 
     protected $listeners = [
         'contactStored'     => 'handleStored',
@@ -22,7 +31,9 @@ class ContactIndex extends Component
     public function render()
     {
         return view('livewire.contact-index', [
-            'contacts'  => Contact::latest()->paginate($this->paginate)
+            'contacts'  => $this->search === null ?
+                            Contact::latest()->paginate($this->paginate) :
+                            Contact::latest()->where('name', 'LIKE', '%'. $this->search.'%')->paginate($this->paginate)
         ]);
     }
 
